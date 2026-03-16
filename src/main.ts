@@ -24,6 +24,18 @@ templateImg.onerror = () => {
 };
 templateImg.src = 'template.jpeg'; // Using relative path for Vite compatibility
 
+function validateForm() {
+    const isNameValid = nameInput.value.trim().length > 0;
+    const isTitleValid = portfolioInput.value.trim().length > 0;
+    const isImageValid = userImg !== null;
+
+    generateBtn.disabled = !(isNameValid && isTitleValid && isImageValid);
+}
+
+// Event Listeners for Validation
+nameInput.addEventListener('input', validateForm);
+portfolioInput.addEventListener('input', validateForm);
+
 imageInput.addEventListener('change', (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
@@ -31,10 +43,11 @@ imageInput.addEventListener('change', (e) => {
         const reader = new FileReader();
         reader.onload = (event) => {
             userImg = new Image();
-            userImg.src = event.target?.result as string;
             userImg.onload = () => {
                 console.log('User image loaded');
+                validateForm();
             };
+            userImg.src = event.target?.result as string;
         };
         reader.readAsDataURL(file);
     }
@@ -49,19 +62,16 @@ function drawFlyer() {
 
     // Draw user image if available
     if (userImg) {
-        // Significantly adjusted coordinates based on user feedback to avoid overlaps
         const targetX = 318; 
-        const targetY = 200; // Lowered significantly to clear header text
+        const targetY = 200;
         const targetWidth = 444; 
-        const targetHeight = 450; // Cropped/Reduced height to clear footer text area
+        const targetHeight = 450;
 
-        // Clip the image to fit the placeholder
         ctx.save();
         ctx.beginPath();
         ctx.rect(targetX, targetY, targetWidth, targetHeight);
         ctx.clip();
         
-        // Aspect ratio cover logic
         const imgRatio = userImg.width / userImg.height;
         const targetRatio = targetWidth / targetHeight;
         let drawW, drawH, drawX, drawY;
@@ -82,29 +92,25 @@ function drawFlyer() {
         ctx.restore();
     }
 
-    // Draw Text inside the white "chin" (Raised slightly to clear "I WILL BE ATTENDING")
     const name = nameInput.value.toUpperCase() || "YOUR NAME";
     const title = portfolioInput.value.toUpperCase() || "DELEGATE";
-
-    // Center point (Template width is 1080)
     const centerX = 540;
 
-    // Name styles (Dark for visibility on white)
     ctx.font = 'bold 30px "Inter", sans-serif';
-    ctx.fillStyle = '#1e1b4b'; // Deep Navy
+    ctx.fillStyle = '#1e1b4b'; 
     ctx.textAlign = 'center';
-    // Positioned higher in the white chin to avoid bottom overlap
     ctx.fillText(name, centerX, 685);
 
-    // Portfolio styles
     ctx.font = '600 18px "Outfit", sans-serif';
-    ctx.fillStyle = '#c41e3a'; // Crimson Red
+    ctx.fillStyle = '#c41e3a'; 
     ctx.fillText(title, centerX, 710);
 
     downloadBtn.disabled = false;
 }
 
 generateBtn.addEventListener('click', drawFlyer);
+// Initially disable generate button
+generateBtn.disabled = true;
 
 downloadBtn.addEventListener('click', () => {
     const link = document.createElement('a');
