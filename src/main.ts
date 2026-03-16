@@ -17,7 +17,7 @@ templateImg.onload = () => {
     console.log('Template loaded successfully:', templateImg.width, 'x', templateImg.height);
     canvas.width = templateImg.width;
     canvas.height = templateImg.height;
-    drawFlyer(); // Initial draw
+    drawFlyer(false); // Initial silent draw
 };
 templateImg.onerror = () => {
     console.error('Failed to load template image. Check if public/template.jpeg exists.');
@@ -40,8 +40,8 @@ function validateForm() {
 }
 
 // Event Listeners for feedback
-nameInput.addEventListener('input', validateForm);
-portfolioInput.addEventListener('input', validateForm);
+nameInput.addEventListener('input', () => { validateForm(); });
+portfolioInput.addEventListener('input', () => { validateForm(); });
 
 imageInput.addEventListener('change', (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -60,24 +60,26 @@ imageInput.addEventListener('change', (e) => {
     }
 });
 
-function drawFlyer() {
+function drawFlyer(isManualClick: boolean = true) {
     if (!templateImg.complete) return;
 
-    // Check validation on click
+    // Always draw template first regardless of validation
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(templateImg, 0, 0);
+
+    // Check validation
     const isValid = validateForm();
     
     if (!isValid) {
-        if (!nameInput.value.trim()) nameInput.classList.add('error');
-        if (!portfolioInput.value.trim()) portfolioInput.classList.add('error');
-        if (!userImg) fileUploadContainer.classList.add('error');
+        if (isManualClick) {
+            if (!nameInput.value.trim()) nameInput.classList.add('error');
+            if (!portfolioInput.value.trim()) portfolioInput.classList.add('error');
+            if (!userImg) fileUploadContainer.classList.add('error');
+        }
         
         downloadBtn.disabled = true;
         return;
     }
-
-    // Clear and draw template
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(templateImg, 0, 0);
 
     // Draw user image
     if (userImg) {
@@ -127,7 +129,7 @@ function drawFlyer() {
     downloadBtn.disabled = false;
 }
 
-generateBtn.addEventListener('click', drawFlyer);
+generateBtn.addEventListener('click', () => drawFlyer(true));
 // Always enable the generate button now
 generateBtn.disabled = false;
 
