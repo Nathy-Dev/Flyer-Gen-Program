@@ -13,12 +13,16 @@ let templateImg = new Image();
 let userImg: HTMLImageElement | null = null;
 
 // Initial template load
-templateImg.src = '/template.jpeg';
 templateImg.onload = () => {
+    console.log('Template loaded successfully:', templateImg.width, 'x', templateImg.height);
     canvas.width = templateImg.width;
     canvas.height = templateImg.height;
-    ctx.drawImage(templateImg, 0, 0);
+    drawFlyer(); // Initial draw
 };
+templateImg.onerror = () => {
+    console.error('Failed to load template image. Check if public/template.jpeg exists.');
+};
+templateImg.src = 'template.jpeg'; // Using relative path for Vite compatibility
 
 imageInput.addEventListener('change', (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
