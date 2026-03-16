@@ -166,6 +166,24 @@ button {
   transform: translateY(-2px);
 }
 
+.btn-generate:active {
+  transform: translateY(0);
+}
+
+/* Error States */
+input[type="text"].error,
+.file-upload.error {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2) !important;
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
 .btn-download {
   background: var(--secondary);
   color: #000;
@@ -177,7 +195,8 @@ button {
 }
 
 .btn-download:disabled {
-  opacity: 0.5;
+  opacity: 0.2; /* Made 'faint' as requested */
   cursor: not-allowed;
   transform: none;
+  filter: grayscale(1);
 }

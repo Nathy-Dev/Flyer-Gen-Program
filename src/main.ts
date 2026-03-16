@@ -24,15 +24,22 @@ templateImg.onerror = () => {
 };
 templateImg.src = 'template.jpeg'; // Using relative path for Vite compatibility
 
+const fileUploadContainer = document.querySelector('.file-upload') as HTMLDivElement;
+
 function validateForm() {
     const isNameValid = nameInput.value.trim().length > 0;
     const isTitleValid = portfolioInput.value.trim().length > 0;
     const isImageValid = userImg !== null;
 
-    generateBtn.disabled = !(isNameValid && isTitleValid && isImageValid);
+    // Remove error classes on input
+    if (isNameValid) nameInput.classList.remove('error');
+    if (isTitleValid) portfolioInput.classList.remove('error');
+    if (isImageValid) fileUploadContainer.classList.remove('error');
+
+    return isNameValid && isTitleValid && isImageValid;
 }
 
-// Event Listeners for Validation
+// Event Listeners for feedback
 nameInput.addEventListener('input', validateForm);
 portfolioInput.addEventListener('input', validateForm);
 
@@ -56,11 +63,23 @@ imageInput.addEventListener('change', (e) => {
 function drawFlyer() {
     if (!templateImg.complete) return;
 
+    // Check validation on click
+    const isValid = validateForm();
+    
+    if (!isValid) {
+        if (!nameInput.value.trim()) nameInput.classList.add('error');
+        if (!portfolioInput.value.trim()) portfolioInput.classList.add('error');
+        if (!userImg) fileUploadContainer.classList.add('error');
+        
+        downloadBtn.disabled = true;
+        return;
+    }
+
     // Clear and draw template
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(templateImg, 0, 0);
 
-    // Draw user image if available
+    // Draw user image
     if (userImg) {
         const targetX = 318; 
         const targetY = 200;
@@ -92,8 +111,8 @@ function drawFlyer() {
         ctx.restore();
     }
 
-    const name = nameInput.value.toUpperCase() || "YOUR NAME";
-    const title = portfolioInput.value.toUpperCase() || "DELEGATE";
+    const name = nameInput.value.toUpperCase();
+    const title = portfolioInput.value.toUpperCase();
     const centerX = 540;
 
     ctx.font = 'bold 30px "Inter", sans-serif';
@@ -109,8 +128,8 @@ function drawFlyer() {
 }
 
 generateBtn.addEventListener('click', drawFlyer);
-// Initially disable generate button
-generateBtn.disabled = true;
+// Always enable the generate button now
+generateBtn.disabled = false;
 
 downloadBtn.addEventListener('click', () => {
     const link = document.createElement('a');
